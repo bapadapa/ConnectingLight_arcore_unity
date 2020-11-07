@@ -172,7 +172,7 @@ namespace GoogleARCoreInternal
             newConfig.InstantPlacementMode = InstantPlacementMode.Disabled;
             return newConfig;
         }
-
+        
         /// <summary>
         /// Logs a limited support message to the console for an instant preview feature.
         /// </summary>
