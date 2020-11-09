@@ -17,7 +17,7 @@ public class IngameUI : UIControl
     // Start is called before the first frame update
     void Start()
     {
-        Debug.Log("ControlCanvas Started");
+        //Debug.Log("ControlCanvas Started");
         duringGame.enabled = true;
         endGame.enabled = false;
       //  sceneController = GameObject.Find("GameController").GetComponent<SceneController>();
@@ -46,7 +46,7 @@ public class IngameUI : UIControl
         endGame.enabled = true;
         duringGame.enabled = false;
         
-        Debug.Log("ControlCanvas Ended");
+        //Debug.Log("ControlCanvas Ended");
 
     }
     public void Home_btn()

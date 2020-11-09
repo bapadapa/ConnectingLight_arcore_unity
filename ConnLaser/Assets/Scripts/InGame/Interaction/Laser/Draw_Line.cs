@@ -21,6 +21,8 @@ public class Draw_Line : MonoBehaviour
 
     IngameUI cheakGame;
 
+    SceneController _sceneController;
+
     void Start()
     {
         _isPlaying = true;
@@ -28,12 +30,14 @@ public class Draw_Line : MonoBehaviour
 
         Transform LaserPos = transform;
         LaserPos.position += new Vector3(0, 0.01f, 0);
+        _sceneController = GameObject.Find("SceneController").GetComponent<SceneController>();
 
     }
 
     // Update is called once per frame
     void Update()
     {
+
         DrawLaser();
     }
 
@@ -52,6 +56,8 @@ public class Draw_Line : MonoBehaviour
                 lineRenderer.SetPosition(lineRenderer.positionCount - 1, hit.point);
                 remainingLength -= Vector3.Distance(ray.origin, hit.point);
                 ray = new Ray(hit.point, Vector3.Reflect(ray.direction, hit.normal));
+
+
                 if (hit.collider.tag == "goal")
                 {
                     //게임 종료.

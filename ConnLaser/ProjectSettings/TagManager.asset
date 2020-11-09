@@ -10,6 +10,7 @@ TagManager:
   - ManipulationSystem
   - MirrorBody
   - stage_button
+  - stage
   layers:
   - Default
   - TransparentFX

@@ -48,6 +48,8 @@ ScriptsOnlyBuild:
     - UnityEngine.UI.Scrollbar
     - UnityEngine.UI.Text
     - UnityEngine.UI.Toggle
+    com.unity.multiplayer-hlapi.Runtime.dll:
+    - UnityEngine.Networking.NetworkCallbacks
   sceneClasses:
     Assets/Scenes/Main_Page.unity:
     - Class: 1
@@ -77,8 +79,6 @@ ScriptsOnlyBuild:
     - Class: 65
       Script: {instanceID: 0}
     - Class: 74
-      Script: {instanceID: 0}
-    - Class: 81
       Script: {instanceID: 0}
     - Class: 83
       Script: {instanceID: 0}
@@ -1270,7 +1270,7 @@ ScriptsOnlyBuild:
     className: Toggle
   - hash:
       serializedVersion: 2
-      Hash: 094d0816f2f91e15b28d43d1fc7178fb
+      Hash: cd09dcf32359d40f5bc2cf8bf3181ecb
     assemblyName: Assembly-CSharp.dll
     namespaceName: 
     className: SceneController

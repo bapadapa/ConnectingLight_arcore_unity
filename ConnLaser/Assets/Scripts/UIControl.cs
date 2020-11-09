@@ -16,7 +16,6 @@ public class UIControl : MonoBehaviour
         start.enabled = true;
         setting.enabled = false;
         stage.enabled = false;
-
         //thisScnen = SceneManager.GetActiveScene().name;
     }
 
@@ -70,10 +69,17 @@ public class UIControl : MonoBehaviour
     {
         //클릭된 버튼명으로 Scene전환
         //stage Scene의 이름과 button의 이름이 동일해야함.
-
         string stage_name = EventSystem.current.currentSelectedGameObject.name;
         SceneManager.LoadScene(stage_name);
+    }
 
+    public void btn_NextStage()
+    {
+        string nextStage = SceneManager.GetActiveScene().name;
+        int stageNum;
+        nextStage= nextStage.Substring(0, nextStage.Length - 1)+(int.Parse(nextStage.Substring(nextStage.Length - 1))+1);
+        
+        Debug.Log(nextStage);
     }
 
 

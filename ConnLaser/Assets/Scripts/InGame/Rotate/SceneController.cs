@@ -33,15 +33,17 @@ public class SceneController : MonoBehaviour
     Vector2 startPos, endPos, directionPos;
     string strTarget;
     public Text textDebug;
-    
+    public bool _isRotatingMap = false;
     public void Update()
     {
-       
+
         _UpdateApplicationLifecycle();
         _PlaneDetection();
         _InstantiateOnTouch();
-       
-        
+
+        textDebug.text = "ARobj = " + ARObject.name;
+        //Debug.Log(ARObject.name);
+
     }
 
     private void _UpdateApplicationLifecycle()
@@ -123,33 +125,25 @@ public class SceneController : MonoBehaviour
     {
         Touch touch;
         touch = Input.GetTouch(0);
-
-    
-
+        _isRotatingMap = false;
 
         if (Input.touchCount != 0)
         {
             _SpawnARObject();
             SelecObj();
-            _PinchtoZoom();
-            _RotateMap();
+            //_PinchtoZoom();
+            _RotateMap();           
             //_RotateObj();
         }
     }
-
-
-
-
-
-
-
-
 
 
     public void _PinchtoZoom()
     {
         if (Input.touchCount == 2)
         {
+
+
             //Store both touches.
             Touch touchZero = Input.GetTouch(0);
             Touch touchOne = Input.GetTouch(1);
@@ -173,34 +167,37 @@ public class SceneController : MonoBehaviour
     }
     public void _RotateMap()
     {
+
         Touch touch;
         touch = Input.GetTouch(0);
-        if (Input.touchCount == 1 && touch.phase == TouchPhase.Moved && target.layer == LayerMask.NameToLayer("gameObj"))
+        if (Input.touchCount == 2 && touch.phase == TouchPhase.Moved)
         {
-            ARObject.transform.Rotate(Vector3.up * 0.2f * Time.deltaTime * touch.deltaPosition.y,Space.Self);
             
+            ARObject.transform.Rotate(Vector3.up * 10f * Time.deltaTime * touch.deltaPosition.x, Space.Self);
+            _isRotatingMap = true;
         }
+        
+
+
     }
 
     public void _RotateObj()
     {
         Touch touch;
         touch = Input.GetTouch(0);
-        if (Input.touchCount == 1 && touch.phase == TouchPhase.Moved)
+        if (Input.touchCount == 1 && touch.phase == TouchPhase.Moved && target.layer == LayerMask.NameToLayer("gameObj"))
         {
-            ARObject.transform.Rotate(Vector3.forward * 40f * Time.deltaTime * touch.deltaPosition.y,
-                Space.Self);
+            ARObject.transform.Rotate(Vector3.forward * 40f * Time.deltaTime * touch.deltaPosition.y, Space.Self);
             Debug.Log("Delta Touch is " + touch.deltaPosition);
         }
-
-
     }
+
     //인식된 PLANE에 Prefeb 생성하기.
     public void _SpawnARObject()
     {
         Touch touch;
         touch = Input.GetTouch(0);
-        Debug.Log("touch count is " + Input.touchCount);
+        //Debug.Log("touch count is " + Input.touchCount);
         TrackableHit hit;      // Raycast against the location the player touched to search for planes.
         TrackableHitFlags raycastFilter = TrackableHitFlags.PlaneWithinPolygon |
         TrackableHitFlags.FeaturePointWithSurfaceNormal;
@@ -240,6 +237,13 @@ public class SceneController : MonoBehaviour
                         {
                             Temp.SetActive(false);
                         }
+
+                        if (ARObject.tag == "stage")
+                        {
+                            anchor = hit.Trackable.CreateAnchor(hit.Pose);
+                            ARObject.transform.parent = anchor.transform;
+                        }
+
                     }
 
                 }
@@ -260,7 +264,7 @@ public class SceneController : MonoBehaviour
         if (Physics.Raycast(ray.origin, ray.direction * 30, out hit))
         {
             target = hit.collider.gameObject;
-            
+
         };
         return target;
     }
@@ -287,9 +291,6 @@ public class SceneController : MonoBehaviour
                 }
                 Debug.Log(target.name);
             }
-
-            
-
             if (touch.phase == TouchPhase.Ended && target != null)
             {
                 endPos = touch.position;
@@ -312,34 +313,29 @@ public class SceneController : MonoBehaviour
 
             if (directionPos.x > 0)
             {
-
-
                 target.transform.Rotate(Vector3.up * 90, Space.World);
-
             }
             else
             {
                 //Quaternion startRot = Quaternion.AngleAxis(90, Vector3.down);
                 ////target.transform.rotation *= startRot;
                 //target.transform.rotation = Quaternion.Euler(Vector3.up * 90);
-
                 target.transform.Rotate(Vector3.down * 90, Space.World);
             }
         }
-
         else
         {
             if (directionPos.y > 0)
             {
-                target.transform.Rotate(Vector3.left * 90, Space.World);
+
+                target.transform.Rotate(Vector3.forward * 90, Space.World);
             }
             else
             {
-                target.transform.Rotate(Vector3.right * 90, Space.World);
+                target.transform.Rotate(Vector3.back * 90, Space.World);
             }
         }
 
-        textDebug.text = "Target = " + target.name + " Rot = " + target.transform.rotation; 
 
         target = touchedObj = null;
         return;
@@ -405,6 +401,7 @@ public class SceneController : MonoBehaviour
                     }
 
                 }
+                textDebug.text += "Target = " + target.name + " Rot = " + target.transform.rotation;
             }
         }
         //------------------------------------------------------
