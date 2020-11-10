@@ -11,6 +11,7 @@ TagManager:
   - MirrorBody
   - stage_button
   - stage
+  - reflectObj
   layers:
   - Default
   - TransparentFX

@@ -41,7 +41,7 @@ public class SceneController : MonoBehaviour
         _PlaneDetection();
         _InstantiateOnTouch();
 
-        textDebug.text = "ARobj = " + ARObject.name;
+       // textDebug.text = "ARobj = " + ARObject.name;
         //Debug.Log(ARObject.name);
 
     }
@@ -167,28 +167,12 @@ public class SceneController : MonoBehaviour
     }
     public void _RotateMap()
     {
-
         Touch touch;
         touch = Input.GetTouch(0);
         if (Input.touchCount == 2 && touch.phase == TouchPhase.Moved)
-        {
-            
-            ARObject.transform.Rotate(Vector3.up * 10f * Time.deltaTime * touch.deltaPosition.x, Space.Self);
+        {            
+            ARObject.transform.Rotate(Vector3.up * 5f * Time.deltaTime * touch.deltaPosition.x, Space.Self);
             _isRotatingMap = true;
-        }
-        
-
-
-    }
-
-    public void _RotateObj()
-    {
-        Touch touch;
-        touch = Input.GetTouch(0);
-        if (Input.touchCount == 1 && touch.phase == TouchPhase.Moved && target.layer == LayerMask.NameToLayer("gameObj"))
-        {
-            ARObject.transform.Rotate(Vector3.forward * 40f * Time.deltaTime * touch.deltaPosition.y, Space.Self);
-            Debug.Log("Delta Touch is " + touch.deltaPosition);
         }
     }
 
@@ -224,6 +208,12 @@ public class SceneController : MonoBehaviour
                     {
                         ARObject = Instantiate(ARAndroidPrefab, hit.Pose.position, hit.Pose.rotation);// Instantiate Andy model at the hit pose.
                         ARObject.transform.Rotate(0, 180.0f, 0, Space.Self);// Compensate for the hitPose rotation facing away from the raycast (i.e. camera).
+                        GameObject StartPoint = ARObject.transform.Find("StartPoint").gameObject;
+                        Vector3 startPosition = Vector3.zero;
+                        startPosition.x += 2.5f; startPosition.z = -5.0f;
+                        StartPoint.transform.localPosition =  startPosition;
+                        Debug.Log("ARObject = " + ARObject);
+                        Debug.Log("StartPoint = "+ StartPoint);
                         var anchor = hit.Trackable.CreateAnchor(hit.Pose);
                         ARObject.transform.parent = anchor.transform;
                         CurrentNumberOfGameObjects = CurrentNumberOfGameObjects + 1;
@@ -232,18 +222,7 @@ public class SceneController : MonoBehaviour
                         ingameUI = GameObject.Find("canvasGroup").GetComponent<IngameUI>();
                         ingameUI.DL = GameObject.Find("StartPoint").GetComponent<Draw_Line>();
 
-                        //지면 인식한 것 지우기.
-                        foreach (GameObject Temp in DetectedPlaneGenerator.instance.PLANES)
-                        {
-                            Temp.SetActive(false);
-                        }
-
-                        if (ARObject.tag == "stage")
-                        {
-                            anchor = hit.Trackable.CreateAnchor(hit.Pose);
-                            ARObject.transform.parent = anchor.transform;
-                        }
-
+                        
                     }
 
                 }
@@ -251,6 +230,13 @@ public class SceneController : MonoBehaviour
             }
 
         }
+        if(CurrentNumberOfGameObjects == numberOfGameObjectsAllowed)
+            //지면 인식한 것 지우기.
+            foreach (GameObject Temp in DetectedPlaneGenerator.instance.PLANES)
+            {
+                Temp.SetActive(false);
+            }
+
 
     }
 
@@ -282,7 +268,7 @@ public class SceneController : MonoBehaviour
 
             if (touch.phase == TouchPhase.Began && touchedObj != null)
             {
-                if (touchedObj.tag == "Mirror" || touchedObj.layer == LayerMask.NameToLayer("gameObj"))
+                if (touchedObj.layer == LayerMask.NameToLayer("gameObj"))
                 {
                     target = touchedObj.transform.parent.gameObject;
                     startPos = touch.position;
@@ -291,7 +277,8 @@ public class SceneController : MonoBehaviour
                 }
                 Debug.Log(target.name);
             }
-            if (touch.phase == TouchPhase.Ended && target != null)
+
+            if (touch.phase == TouchPhase.Ended && target.tag == "Mirror")
             {
                 endPos = touch.position;
                 directionPos = startPos - endPos;
@@ -327,16 +314,18 @@ public class SceneController : MonoBehaviour
         {
             if (directionPos.y > 0)
             {
+                //target.transform.Rotate(Vector3.back * 45  + Vector3.up*45, Space.World);
+                target.transform.Rotate(Vector3.back * 90, Space.World);
 
-                target.transform.Rotate(Vector3.forward * 90, Space.World);
             }
             else
             {
-                target.transform.Rotate(Vector3.back * 90, Space.World);
+                //target.transform.Rotate(Vector3.forward * 45 + Vector3.down *45, Space.World);
+                target.transform.Rotate(Vector3.forward * 90, Space.World);
             }
         }
 
-
+        textDebug.text += "Position = " + target.transform.position.ToString() + "ratation = " + target.transform.rotation.ToString();
         target = touchedObj = null;
         return;
 
@@ -352,22 +341,22 @@ public class SceneController : MonoBehaviour
                 {
                     if (directionPos.x > 0)
                     {
-                        touchedObj.transform.parent.Rotate(Vector3.up * 90, Space.World);
+                        target.transform.parent.Rotate(Vector3.up * 90, Space.World);
                     }
                     else
                     {
-                        touchedObj.transform.parent.Rotate(Vector3.down * 90, Space.World);
+                        target.transform.parent.Rotate(Vector3.down * 90, Space.World);
                     }
                 }
                 else
                 {
                     if (directionPos.y > 0)
                     {
-                        touchedObj.transform.parent.Rotate(Vector3.left * 90, Space.World);
+                        target.transform.parent.Rotate(Vector3.left * 90, Space.World);
                     }
                     else
                     {
-                        touchedObj.transform.parent.Rotate(Vector3.right * 90, Space.World);
+                        target.transform.parent.Rotate(Vector3.right * 90, Space.World);
                     }
                 }
             }
@@ -380,28 +369,27 @@ public class SceneController : MonoBehaviour
 
                     if (directionPos.x > 0)
                     {
-                        touchedObj.transform.parent.Rotate(Vector3.down * 90, Space.World);
+                        target.transform.parent.Rotate(Vector3.down * 90, Space.World);
 
                     }
 
                     else
                     {
-                        touchedObj.transform.parent.Rotate(Vector3.up * 90, Space.World);
+                        target.transform.parent.Rotate(Vector3.up * 90, Space.World);
                     }
                 }
                 else
                 {
                     if (directionPos.y > 0)
                     {
-                        touchedObj.transform.parent.Rotate(Vector3.right * 90, Time.deltaTime, Space.World);
+                        target.transform.parent.Rotate(Vector3.right * 90, Time.deltaTime, Space.World);
                     }
                     else
                     {
-                        touchedObj.transform.parent.Rotate(Vector3.left * 90, Time.deltaTime, Space.World);
+                        target.transform.parent.Rotate(Vector3.left * 90, Time.deltaTime, Space.World);
                     }
 
                 }
-                textDebug.text += "Target = " + target.name + " Rot = " + target.transform.rotation;
             }
         }
         //------------------------------------------------------
@@ -414,16 +402,16 @@ public class SceneController : MonoBehaviour
                 if (Mathf.Abs(directionPos.x) > Mathf.Abs(directionPos.y))
                 {
                     if (directionPos.x > 0)
-                        touchedObj.transform.parent.Rotate(Vector3.up * 90, Space.World);
+                        target.transform.parent.Rotate(Vector3.up * 90, Space.World);
                     else
-                        touchedObj.transform.parent.Rotate(Vector3.down * 90, Space.World);
+                        target.transform.parent.Rotate(Vector3.down * 90, Space.World);
                 }
                 else
                 {
                     if (directionPos.y > 0)
-                        touchedObj.transform.parent.Rotate(Vector3.forward * 90, Space.World);
+                        target.transform.parent.Rotate(Vector3.forward * 90, Space.World);
                     else
-                        touchedObj.transform.parent.Rotate(Vector3.back * 90, Space.World);
+                        target.transform.parent.Rotate(Vector3.back * 90, Space.World);
                 }
             }
             else
@@ -432,19 +420,20 @@ public class SceneController : MonoBehaviour
                 if (Mathf.Abs(directionPos.x) > Mathf.Abs(directionPos.y))
                 {
                     if (directionPos.x > 0)
-                        touchedObj.transform.parent.Rotate(Vector3.up * 90, Space.World);
+                        target.transform.parent.Rotate(Vector3.up * 90, Space.World);
                     else
-                        touchedObj.transform.parent.Rotate(Vector3.down * 90, Space.World);
+                        target.transform.parent.Rotate(Vector3.down * 90, Space.World);
                 }
                 else
                 {
                     if (directionPos.y > 0)
-                        touchedObj.transform.parent.Rotate(Vector3.back * 90, Space.World);
+                        target.transform.parent.Rotate(Vector3.back * 90, Space.World);
                     else
-                        touchedObj.transform.parent.Rotate(Vector3.forward * 90, Space.World);
+                        target.transform.parent.Rotate(Vector3.forward * 90, Space.World);
                 }
             }
         }
+        target = touchedObj = null;
     }
 }
 

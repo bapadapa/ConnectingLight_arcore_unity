@@ -27,10 +27,12 @@ public class Draw_Line : MonoBehaviour
     {
         _isPlaying = true;
         lineRenderer = GetComponent<LineRenderer>();
+        lineRenderer.SetColors(Color.blue, Color.blue);
+        lineRenderer.SetWidth(0.1f, 0.1f);
 
         Transform LaserPos = transform;
         LaserPos.position += new Vector3(0, 0.01f, 0);
-        _sceneController = GameObject.Find("SceneController").GetComponent<SceneController>();
+        _sceneController = GameObject.Find("GameController").GetComponent<SceneController>();
 
     }
 
@@ -40,7 +42,6 @@ public class Draw_Line : MonoBehaviour
 
         DrawLaser();
     }
-
     void DrawLaser()
     {
         ray = new Ray(transform.position, transform.forward);
@@ -67,7 +68,7 @@ public class Draw_Line : MonoBehaviour
                     //End_Game_canvas.enabled = true;
 
                 }
-                if (hit.collider.tag != "Mirror")
+                if (hit.collider.tag != "reflectObj")
                 {
                     return;
                 }

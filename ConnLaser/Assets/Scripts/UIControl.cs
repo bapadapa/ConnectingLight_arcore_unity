@@ -78,8 +78,8 @@ public class UIControl : MonoBehaviour
         string nextStage = SceneManager.GetActiveScene().name;
         int stageNum;
         nextStage= nextStage.Substring(0, nextStage.Length - 1)+(int.Parse(nextStage.Substring(nextStage.Length - 1))+1);
+        SceneManager.LoadScene(nextStage);
         
-        Debug.Log(nextStage);
     }
 
 
