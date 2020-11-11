@@ -43,7 +43,6 @@ public class drawLineReflectorLaser : MonoBehaviour
 
     void DrawLaser(GameObject start)
     {
-
         ray = new Ray(start.transform.position, start.transform.forward);
 
         lineRenderer.positionCount = 1;

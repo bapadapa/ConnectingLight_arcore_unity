@@ -10,50 +10,27 @@ using UnityEngine.EventSystems;
 public class UIControl : MonoBehaviour
 {
     private string thisScnen;
-     public  Canvas start, setting, stage;
+    
+
     void Start()
     {
-        start.enabled = true;
-        setting.enabled = false;
-        stage.enabled = false;
-        //thisScnen = SceneManager.GetActiveScene().name;
+
     }
 
 
     //------------UI 껏다 켰다하기.-----------------
 
-    //Setting창으로 화면 전환
-    public void btn_Setting()
+    public void OnClickStart()
     {
-        //SceneManager.LoadScene("Setting_Page");
-        start.enabled = false;
-        stage.enabled = false;
-        setting.enabled = true;
-        
-    }   
-    //Stage 선택 화면 전환
-    public void btn_Stage()
-    {
-        // SceneManager.LoadScene("Select_Stage");
-        start.enabled = false;
-        setting.enabled = false;
-        stage.enabled = true;
-        
-    }
-    //메인 화면으로 전환.
-    public void Home_btn()
-    {
-        // SceneManager.LoadScene("Main_Page");
-
-        start.enabled = true;
-        setting.enabled = false;
-        stage.enabled = false;
+        popSys.Instance.openPopUp();
+        //필요하면 사용할것.
+        //() =>{Debug.Log("OnClick Oaky!");} , () =>{Debug.Log("OnClick cancel!");}
     }
 
     //------------UI 껏다 켰다하기.-----------------
 
     //Exit 선택 어플리케이션 종료
-    public void btn_Exit()
+    public void OnClickExit()
     {
         Application.Quit();
     }
@@ -65,7 +42,7 @@ public class UIControl : MonoBehaviour
         SceneManager.LoadScene(thisScnen);
     }    
 
-    public void btn_stageSelect()
+    public void OnClickStage()
     {
         //클릭된 버튼명으로 Scene전환
         //stage Scene의 이름과 button의 이름이 동일해야함.
@@ -81,6 +58,7 @@ public class UIControl : MonoBehaviour
         SceneManager.LoadScene(nextStage);
         
     }
+   
 
 
 }

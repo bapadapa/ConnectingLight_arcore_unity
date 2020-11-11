@@ -22,7 +22,7 @@ public class Draw_Line : MonoBehaviour
     IngameUI cheakGame;
 
     SceneController _sceneController;
-
+    Draw_Line DL;
     void Start()
     {
         _isPlaying = true;
@@ -57,12 +57,26 @@ public class Draw_Line : MonoBehaviour
                 lineRenderer.SetPosition(lineRenderer.positionCount - 1, hit.point);
                 remainingLength -= Vector3.Distance(ray.origin, hit.point);
                 ray = new Ray(hit.point, Vector3.Reflect(ray.direction, hit.normal));
+                GameObject reflection;
 
+                if (hit.collider.name == "BackReflector")
+                {
+                    reflection = hit.transform.parent.gameObject.transform.Find("BottomReflector").gameObject;
+                    DL = reflection.GetComponent<Draw_Line>();
+                    DL.enabled = true;
+                }
+                if (hit.collider.name == "BottomReflector")
+                {
+                    reflection = hit.transform.parent.gameObject.transform.Find("BackReflector").gameObject;
+                    DL = reflection.GetComponent<Draw_Line>();
+                    DL.enabled = true;
+                }
 
                 if (hit.collider.tag == "goal")
                 {
                     //게임 종료.
                     // print("Goal");
+                    popSys.Instance.openPopUp();
                     _isPlaying = false;
                     //cheakGame._isEnd();
                     //End_Game_canvas.enabled = true;
