@@ -19,6 +19,8 @@ public class SceneController : MonoBehaviour
     public GameObject ARAndroidPrefab;
     public GameObject SearchingForPlaneUI;
     private GameObject ARObject;
+    private GameObject touchedObj;
+    private GameObject target;
     private List<DetectedPlane> m_AllPlanes = new List<DetectedPlane>();
     private bool m_IsQuitting = false;
     public int CurrentNumberOfGameObjects = 0;
@@ -27,21 +29,37 @@ public class SceneController : MonoBehaviour
     float prevTouchDistance;
     float zoomSpeed = 0.2f;
 
-    public IngameUI ingameUI;
-    public GameObject touchedObj;
-    public GameObject target;
+    
     Vector2 startPos, endPos, directionPos;
     string strTarget;
-    public Text textDebug;
+   // public Text textDebug;
     public bool _isRotatingMap = false;
+    public int rotateTime;
+
+    AudioSource rotateSound;
+
+
+    private void Start()
+    {
+        rotateTime = 0;
+        rotateSound = GetComponent<AudioSource>();
+    }
+
+
     public void Update()
     {
 
-        _UpdateApplicationLifecycle();
+
+       // _UpdateApplicationLifecycle();
         _PlaneDetection();
         _InstantiateOnTouch();
 
-       // textDebug.text = "ARobj = " + ARObject.name;
+        
+
+
+
+
+        // textDebug.text = "ARobj = " + ARObject.name;
         //Debug.Log(ARObject.name);
 
     }
@@ -142,8 +160,6 @@ public class SceneController : MonoBehaviour
     {
         if (Input.touchCount == 2)
         {
-
-
             //Store both touches.
             Touch touchZero = Input.GetTouch(0);
             Touch touchOne = Input.GetTouch(1);
@@ -162,7 +178,6 @@ public class SceneController : MonoBehaviour
 
             float pinchAmount = deltaMagnitudeDiff * 0.02f * Time.deltaTime;
             ARObject.transform.localScale += new Vector3(pinchAmount, pinchAmount, pinchAmount);
-
         }
     }
     public void _RotateMap()
@@ -212,17 +227,11 @@ public class SceneController : MonoBehaviour
                         Vector3 startPosition = Vector3.zero;
                         startPosition.x += 2.5f; startPosition.z = -5.0f;
                         StartPoint.transform.localPosition =  startPosition;
-                        Debug.Log("ARObject = " + ARObject);
-                        Debug.Log("StartPoint = "+ StartPoint);
+
                         var anchor = hit.Trackable.CreateAnchor(hit.Pose);
                         ARObject.transform.parent = anchor.transform;
                         CurrentNumberOfGameObjects = CurrentNumberOfGameObjects + 1;
-
                         //ARObj 생성 완료.
-                        ingameUI = GameObject.Find("canvasGroup").GetComponent<IngameUI>();
-                        ingameUI.DL = GameObject.Find("StartPoint").GetComponent<Draw_Line>();
-
-                        
                     }
 
                 }
@@ -293,147 +302,142 @@ public class SceneController : MonoBehaviour
         Vector3 heading = target.transform.position - Camera.main.transform.position;
         var distance = heading.magnitude;
         var direction = heading / distance;
+        Vector3 tmpPos = target.transform.position;
         Debug.Log("touched");
 
         if (Mathf.Abs(directionPos.x) > Mathf.Abs(directionPos.y))
         {
-
             if (directionPos.x > 0)
             {
                 target.transform.Rotate(Vector3.up * 90, Space.World);
+                //target.transform.RotateAround(target.transform.position,Vector3.up  , 90.0f);
+                
             }
             else
             {
-                //Quaternion startRot = Quaternion.AngleAxis(90, Vector3.down);
-                ////target.transform.rotation *= startRot;
-                //target.transform.rotation = Quaternion.Euler(Vector3.up * 90);
                 target.transform.Rotate(Vector3.down * 90, Space.World);
+                //target.transform.RotateAround(target.transform.position, Vector3.down, 90.0f);
             }
         }
         else
         {
             if (directionPos.y > 0)
             {
-                //target.transform.Rotate(Vector3.back * 45  + Vector3.up*45, Space.World);
                 target.transform.Rotate(Vector3.back * 90, Space.World);
-
+                //target.transform.RotateAround(target.transform.position, Vector3.back, 90.0f);
             }
             else
             {
-                //target.transform.Rotate(Vector3.forward * 45 + Vector3.down *45, Space.World);
                 target.transform.Rotate(Vector3.forward * 90, Space.World);
+                //target.transform.RotateAround(target.transform.position, Vector3.forward, 90.0f);
             }
         }
-
-        textDebug.text += "Position = " + target.transform.position.ToString() + "ratation = " + target.transform.rotation.ToString();
+        rotateTime++;
+        rotateSound.Play();
+        transform.position = tmpPos;
         target = touchedObj = null;
-        return;
+        
 
-        //------------------------------------------------------
-        if (Math.Abs(direction.x) < Math.Abs(direction.z))
-        {
-            Debug.Log("direction.x");
-            if (direction.x < 0)
-            {
-                Debug.Log(direction);
+        //if (direction.x <= 0 &&  direction.z <= 0)
+        //{
+        //    if (direction.x < 0)
+        //    {
+        //        textDebug.text = "1번";
+        //if (Mathf.Abs(directionPos.x) > Mathf.Abs(directionPos.y))
+        //{
+        //    if (directionPos.x > 0)
+        //    {
+        //        target.transform.Rotate(Vector3.up * 90, Space.World);
+        //    }
+        //    else
+        //    {
+        //        target.transform.Rotate(Vector3.down * 90, Space.World);
+        //    }
+        //}
+        //else
+        //{
+        //    if (directionPos.y > 0)
+        //    {
+        //        target.transform.Rotate(Vector3.back * 90, Space.World);
+        //    }
+        //    else
+        //    {
+        //        target.transform.Rotate(Vector3.forward * 90, Space.World);
+        //    }
+        //}
+        //    }
+        //    else
+        //    {
+        //        textDebug.text = "2번";
+        //        if (Mathf.Abs(directionPos.x) > Mathf.Abs(directionPos.y))
+        //        {
 
-                if (Mathf.Abs(directionPos.x) > Mathf.Abs(directionPos.y))
-                {
-                    if (directionPos.x > 0)
-                    {
-                        target.transform.parent.Rotate(Vector3.up * 90, Space.World);
-                    }
-                    else
-                    {
-                        target.transform.parent.Rotate(Vector3.down * 90, Space.World);
-                    }
-                }
-                else
-                {
-                    if (directionPos.y > 0)
-                    {
-                        target.transform.parent.Rotate(Vector3.left * 90, Space.World);
-                    }
-                    else
-                    {
-                        target.transform.parent.Rotate(Vector3.right * 90, Space.World);
-                    }
-                }
-            }
+        //            if (directionPos.x > 0)
+        //            {
+        //                target.transform.Rotate(Vector3.up * 90, Space.World);
+        //            }
+        //            else
+        //            {
+        //                target.transform.Rotate(Vector3.down * 90, Space.World);
+        //            }
+        //        }
+        //        else
+        //        {
+        //            if (directionPos.y > 0)
+        //            {
+        //                target.transform.Rotate(Vector3.right * 90, Space.World);
+        //            }
+        //            else
+        //            {
+        //                target.transform.Rotate(Vector3.left * 90, Space.World);
+        //            }
+        //        }
+        //    }
+        //}
+        //else
+        //{
+        //    Debug.Log("direction.z");
+        //    if (direction.z < 0)
+        //    {
+        //        textDebug.text = "3번";
+        //        Debug.Log(direction);
+        //        if (Mathf.Abs(directionPos.x) > Mathf.Abs(directionPos.y))
+        //        {
+        //            if (directionPos.x > 0)
+        //                target.transform.Rotate(Vector3.up * 90, Space.World);
+        //            else
+        //                target.transform.Rotate(Vector3.down * 90, Space.World);
+        //        }
+        //        else
+        //        {
+        //            if (directionPos.y > 0)
+        //                target.transform.Rotate(Vector3.forward * 90, Space.World);
+        //            else
+        //                target.transform.Rotate(Vector3.back * 90, Space.World);
+        //        }
+        //    }
+        //    else
+        //    {
+        //        textDebug.text = "4번";
+        //        Debug.Log(direction);
+        //        if (Mathf.Abs(directionPos.x) > Mathf.Abs(directionPos.y))
+        //        {
+        //            if (directionPos.x > 0)
+        //                target.transform.Rotate(Vector3.up * 90, Space.World);
+        //            else
+        //                target.transform.Rotate(Vector3.down * 90, Space.World);
+        //        }
+        //        else
+        //        {
+        //            if (directionPos.y > 0)
+        //                target.transform.Rotate(Vector3.right * 90, Space.World);
+        //            else
+        //                target.transform.Rotate(Vector3.left * 90, Space.World);
+        //        }
+        //    }
+        //}
 
-            else
-            {
-                Debug.Log(direction);
-                if (Mathf.Abs(directionPos.x) > Mathf.Abs(directionPos.y))
-                {
 
-                    if (directionPos.x > 0)
-                    {
-                        target.transform.parent.Rotate(Vector3.down * 90, Space.World);
-
-                    }
-
-                    else
-                    {
-                        target.transform.parent.Rotate(Vector3.up * 90, Space.World);
-                    }
-                }
-                else
-                {
-                    if (directionPos.y > 0)
-                    {
-                        target.transform.parent.Rotate(Vector3.right * 90, Time.deltaTime, Space.World);
-                    }
-                    else
-                    {
-                        target.transform.parent.Rotate(Vector3.left * 90, Time.deltaTime, Space.World);
-                    }
-
-                }
-            }
-        }
-        //------------------------------------------------------
-        else
-        {
-            Debug.Log("direction.z");
-            if (direction.z < 0)
-            {
-                Debug.Log(direction);
-                if (Mathf.Abs(directionPos.x) > Mathf.Abs(directionPos.y))
-                {
-                    if (directionPos.x > 0)
-                        target.transform.parent.Rotate(Vector3.up * 90, Space.World);
-                    else
-                        target.transform.parent.Rotate(Vector3.down * 90, Space.World);
-                }
-                else
-                {
-                    if (directionPos.y > 0)
-                        target.transform.parent.Rotate(Vector3.forward * 90, Space.World);
-                    else
-                        target.transform.parent.Rotate(Vector3.back * 90, Space.World);
-                }
-            }
-            else
-            {
-                Debug.Log(direction);
-                if (Mathf.Abs(directionPos.x) > Mathf.Abs(directionPos.y))
-                {
-                    if (directionPos.x > 0)
-                        target.transform.parent.Rotate(Vector3.up * 90, Space.World);
-                    else
-                        target.transform.parent.Rotate(Vector3.down * 90, Space.World);
-                }
-                else
-                {
-                    if (directionPos.y > 0)
-                        target.transform.parent.Rotate(Vector3.back * 90, Space.World);
-                    else
-                        target.transform.parent.Rotate(Vector3.forward * 90, Space.World);
-                }
-            }
-        }
-        target = touchedObj = null;
     }
 }
 

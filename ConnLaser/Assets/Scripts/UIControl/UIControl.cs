@@ -10,10 +10,12 @@ using UnityEngine.EventSystems;
 public class UIControl : MonoBehaviour
 {
     private string thisScnen;
-    
+    SceneController SC;
+
 
     void Start()
     {
+        SC = GameObject.Find("GameController").GetComponent<SceneController>();
 
     }
 
@@ -33,6 +35,11 @@ public class UIControl : MonoBehaviour
     public void OnClickExit()
     {
         Application.Quit();
+    }
+
+    public void OnClickHome()
+    {
+        SceneManager.LoadScene("Main_Page");
     }
 
     //재시작 선택 어플리케이션 종료

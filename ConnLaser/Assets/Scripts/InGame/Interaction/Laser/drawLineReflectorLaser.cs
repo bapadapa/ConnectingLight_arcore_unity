@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class drawLineReflectorLaser : MonoBehaviour
 {
-    public GameObject obj_start;
+    //public GameObject obj_start;
 
     float maxLength = 1000.0f;
     private Ray ray;
@@ -12,84 +12,137 @@ public class drawLineReflectorLaser : MonoBehaviour
     private Vector3 direction;
     private LineRenderer lineRenderer;
     GameObject obj_Receiver, obj_sender;
-
+    drawLineReflectorLaser DL;
+    float remainingLength;
     // Start is called before the first frame update
     void Start()
     {
         lineRenderer = GetComponent<LineRenderer>();
-        lineRenderer.SetColors(Color.red, Color.yellow);
-        lineRenderer.SetWidth(0.1f, 0.1f);
+        remainingLength = 100.0f;
+        DL = this.GetComponent<drawLineReflectorLaser>();
     }
 
     // Update is called once per frame
     void Update()
     {
-        DrawLaser(gameObject);
-    }
-    private void OnTriggerEnter(Collider other)
-    {
-        //Debug.Log("collition Occur");
-        //if(transform.name == "reflector01")
-        //{
-        //    Transform tr = GetComponent<Transform>().Find("reflector02");
-        //    DrawLaser(tr);
-        //}
-        //else if (transform.name == "reflector02")
-        //{
-        //    Transform tr = GetComponent<Transform>().Find("reflector01");
-        //    DrawLaser(tr);
-        //}
+        DrawLaser(this.gameObject);
     }
 
-    void DrawLaser(GameObject start)
+    void DrawLaser()
     {
-        ray = new Ray(start.transform.position, start.transform.forward);
-
+        ray = new Ray(transform.position, transform.forward);
         lineRenderer.positionCount = 1;
-        lineRenderer.SetPosition(0, start.transform.position);
-        if (Physics.Raycast(ray.origin, ray.direction, out hit, maxLength))
+        lineRenderer.SetPosition(0, transform.position);
+        float remainingLength = maxLength;
+
+        for (int i = 0; i < 10; i++)
         {
-            lineRenderer.positionCount += 1;
-            lineRenderer.SetPosition(lineRenderer.positionCount - 1, hit.point);
-            if (hit.transform.gameObject.layer == LayerMask.NameToLayer("gameObj"))
-                if (hit.transform.name == "reflector01")
-                {
-
-                    Debug.Log("reflector01!!!");
-                    obj_Receiver = hit.transform.gameObject;
-                    obj_sender = obj_Receiver.transform.parent.gameObject.transform.Find("reflector02").gameObject;
-                    //레이져 맞은 부위에서 raycast 실행
-
-                    //Debug.DrawRay(obj_sender.transform.position, obj_sender.transform.right * MaxDistance, Color.blue, 0.3f);
-                    //Physics.Raycast(obj_sender.transform.position, obj_sender.transform.right, out hit, MaxDistance);
-                    lineRenderer.positionCount += 1;
-                    DrawLaser(obj_sender);
-                }
-                else if (hit.transform.name == "reflector02")
-                {
-
-                    Debug.Log("reflector02!!!");
-                    obj_Receiver = hit.transform.gameObject;
-                    obj_sender = obj_Receiver.transform.parent.gameObject.transform.Find("reflector01").gameObject;
-
-                    //레이져 맞은 부위에서 raycast 실행
-                    //Debug.DrawRay(obj_sender.transform.position, obj_sender.transform.right * MaxDistance, Color.blue, 0.3f);
-                    //Physics.Raycast(obj_sender.transform.position, obj_sender.transform.right, out hit, MaxDistance);
-                    lineRenderer.positionCount += 1;
-                    DrawLaser(obj_sender);
-                }
-
-            if (hit.collider.tag == "goal")
+            if (Physics.Raycast(ray.origin, ray.direction, out hit, remainingLength))
             {
+                lineRenderer.positionCount += 1;
+                lineRenderer.SetPosition(lineRenderer.positionCount - 1, hit.point);
+                remainingLength -= Vector3.Distance(ray.origin, hit.point);
+                ray = new Ray(hit.point, Vector3.Reflect(ray.direction, hit.normal));
+                GameObject reflection;
 
+                //if (hit.collider.name == "BackReflector")
+                //{
+                //    reflection = hit.transform.parent.gameObject.transform.Find("BottomReflector").gameObject;
+                //    lineRenderer.SetPosition(lineRenderer.positionCount - 1, reflection.transform.position);
+                //    remainingLength -= Vector3.Distance(ray.origin, hit.point);
+                //    //DL.DrawLaser(reflection);
+                //}
+                //if (hit.collider.name == "BottomReflector")
+                //{
+                //    reflection = hit.transform.parent.gameObject.transform.Find("BackReflector").gameObject;
+                //    lineRenderer.SetPosition(lineRenderer.positionCount - 1, reflection.transform.position);
+                //    remainingLength -= Vector3.Distance(ray.origin, hit.point);
+                //    //DL.DrawLaser(reflection);
+                //}
+
+                if (hit.collider.tag == "goal")
+                {
+                    //게임 종료.
+                    // print("Goal");
+                    popSys.Instance.openPopUp();
+
+                    //cheakGame._isEnd();
+                    //End_Game_canvas.enabled = true;
+
+                }
+                if (hit.collider.tag != "reflectObj")
+                {
+                    return;
+                }
             }
 
-
+            else
+            {
+                lineRenderer.positionCount += 1;
+                lineRenderer.SetPosition(lineRenderer.positionCount - 1, ray.origin + ray.direction * remainingLength);
+            }
         }
-
 
     }
 
 
+    public void DrawLaser(GameObject obj_start)
+    {
 
+        ray = new Ray(transform.position, transform.forward);
+        lineRenderer.positionCount = 1;
+        lineRenderer.SetPosition(0, obj_start.transform.position);
+        float remainingLength = maxLength;
+
+        for (int i = 0; i < 10; i++)
+        {
+            if (Physics.Raycast(ray.origin, ray.direction, out hit, remainingLength))
+            {
+                lineRenderer.SetPosition(lineRenderer.positionCount++, hit.point);
+                remainingLength -= Vector3.Distance(ray.origin, hit.point);
+                ray = new Ray(hit.transform.position, hit.transform.forward);
+                GameObject reflection;
+
+                //if (hit.collider.name == "BackReflector")
+                //{
+                //    reflection = hit.transform.parent.gameObject.transform.Find("BottomReflector").gameObject;
+                //    lineRenderer.SetPosition(lineRenderer.positionCount - 1, reflection.transform.position);
+                //    remainingLength -= Vector3.Distance(ray.origin, hit.point);
+                //    //DL.DrawLaser(reflection);
+                //}
+                //if (hit.collider.name == "BottomReflector")
+                //{
+                //    reflection = hit.transform.parent.gameObject.transform.Find("BackReflector").gameObject;
+                //    lineRenderer.SetPosition(lineRenderer.positionCount - 1, reflection.transform.position);
+                //    remainingLength -= Vector3.Distance(ray.origin, hit.point);
+                //    //DL.DrawLaser(reflection);
+                //}
+
+                if (hit.collider.tag == "goal")
+                {
+                    //게임 종료.
+                    // print("Goal");
+                    popSys.Instance.openPopUp();
+
+                    //cheakGame._isEnd();
+                    //End_Game_canvas.enabled = true;
+
+                }
+                if (hit.collider.tag != "reflectObj")
+                {
+                    return;
+                }
+            }
+
+            else
+            {
+                lineRenderer.positionCount += 1;
+                lineRenderer.SetPosition(lineRenderer.positionCount - 1, ray.origin + ray.direction * remainingLength);
+            }
+        }
+    }
 }
+
+
+
+
